@@ -119,10 +119,24 @@ fig = px.violin(medical_df,
 				x='children',
 				y='charges',
 				title='Number of children vs. Charges')
-fig.show()
+load_plot(fig)
 
-# Examine relationship between charges and sex
-plt.figure(figsize=(6, 8))
-fig = sns.barplot(x='charges', y='sex', data=medical_df)
-plt.savefig('bar_plot.png')
-plt.show()
+# Examine relationship of the values in different columns using correlation coefficient
+
+print(f"Correlation coefficient between charges and age: {medical_df.charges.corr(medical_df.age)}")
+print(f"Correlation coefficient between charges and bmi: {medical_df.charges.corr(medical_df.bmi)}")
+print(f"Correlation coefficient between charges and children: {medical_df.charges.corr(medical_df.children)}")
+
+
+# To compute correlation between categorical values, they must first be converted into numeric
+
+smoker_values = {'no': 0, 'yes': 1}
+smoker_numeric = medical_df.smoker.map(smoker_values)
+print(f"Correlation coefficient between charges and smoking: {medical_df.charges.corr(smoker_numeric)}")
+
+# Make correlation matrix and display it in heat map
+
+# First select only numerical values in the df
+
+numeric_df = medical_df.select_dtypes(include=['number'])
+print(numeric_df.corr())
