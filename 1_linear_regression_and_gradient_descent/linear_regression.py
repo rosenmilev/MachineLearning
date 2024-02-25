@@ -17,6 +17,8 @@ def load_plot(fig):
 		fig.show()
 
 
+
+
 # Create pandas data frame
 medical_df = pd.read_csv('medical.csv')
 
@@ -140,3 +142,10 @@ print(f"Correlation coefficient between charges and smoking: {medical_df.charges
 
 numeric_df = medical_df.select_dtypes(include=['number'])
 print(numeric_df.corr())
+
+# Build heatmap to visualize corelation matrix
+
+
+ax = sns.heatmap(numeric_df.corr(), cmap="Reds", annot=True)
+plt.title('Corelation Matrix')
+plt.savefig('correlation_matrix.png')
