@@ -4,6 +4,7 @@ import plotly.express as px
 import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 # medical_charges_url = 'https://raw.githubusercontent.com/JovianML/opendatasets/master/data/medical-charges.csv'
 #
@@ -32,6 +33,7 @@ matplotlib.rcParams['font.size'] = 14
 matplotlib.rcParams['figure.figsize'] = (10, 6)
 matplotlib.rcParams['figure.facecolor'] = '#00000000'
 
+# 1. Examine and analyze data
 # Age column
 
 print(medical_df.age.describe())
@@ -145,7 +147,97 @@ print(numeric_df.corr())
 
 # Build heatmap to visualize corelation matrix
 
-
+plt.figure(figsize=(10, 8))
 ax = sns.heatmap(numeric_df.corr(), cmap="Reds", annot=True)
 plt.title('Corelation Matrix')
-plt.savefig('correlation_matrix.png')
+# plt.savefig('correlation_matrix.png')
+
+# 2. Linear regression using single feature
+
+# Estimate the value of charges using value age for non-smokers
+
+# Filter only non-smokers
+non_smoker_df = medical_df[medical_df.smoker == 'no']
+
+# Plot the data
+
+plt.figure(figsize=(10, 8))
+plt.title('Age vs. Charges')
+sns.scatterplot(data=non_smoker_df, x='age', y='charges', alpha=0.7, s=15)
+# plt.savefig('age_vs_charges_non_smokers.png')
+
+# Linear regression model for charges and age
+# Formula of the model charges = w * age + b
+# Define helper function estimate_charges to compute charges, given age, w and b
+
+
+def estimate_charges(age, w, b):
+	return w * age + b
+
+
+w = 50
+b = 100
+ages = non_smoker_df.age
+estimated_charges = estimate_charges(ages, w, b)
+
+# Plot the estimated charges
+
+plt.figure(figsize=(10, 8))
+plt.plot(ages, estimated_charges, 'r-o')
+plt.xlabel('Age')
+plt.ylabel('Estimated Charges')
+# plt.savefig('age_vs_estimated_charges.png')
+
+# Plot model data vs real data
+
+plt.figure(figsize=(10, 8))
+target = non_smoker_df.charges
+plt.plot(ages, estimated_charges, 'r', alpha=0.9)
+
+plt.scatter(ages, target, s=8, alpha=0.8)
+plt.xlabel('Age')
+plt.ylabel('Charges')
+plt.legend(['Estimate', 'Actual'])
+# plt.savefig('age_charges_estimate_vs_real.png')
+
+
+# Lets create helper function which takes w and b as inputs and create the above plot.
+
+def try_parameters(w, b):
+	ages = non_smoker_df.age
+	target = non_smoker_df.charges
+	estimated_charges = estimate_charges(ages, w, b)
+
+	plt.figure(figsize=(10, 8))
+	plt.plot(ages, estimated_charges, 'r', alpha=0.9)
+	plt.scatter(ages, target, s=8, alpha=0.8)
+	plt.xlabel('Age')
+	plt.ylabel('Charges')
+	plt.legend(['Estimate', 'Actual'])
+	name_of_plot = f"age_charges_estimate_vs_actual_w{w}_b{b}.png"
+	# plt.savefig(name_of_plot)
+	loss = rmse(targets, estimated_charges)
+	print('RMSE Loss: ', loss)
+
+
+
+
+targets = non_smoker_df.charges
+
+predictions = estimate_charges(ages, w, b)
+
+
+# Lost/Cost Function
+# Function to calculate root mean square error(RMSE)
+
+def rmse(targets, prediciotns):
+	return np.sqrt(np.mean(np.square(targets - prediciotns)))
+
+w = 310
+b = -3750
+
+result = rmse(targets, predictions)
+
+# On average each element in prediction differs from actual target by 'result'= 8461 for w = 50 and b = 100
+
+try_parameters(310, -3750)
