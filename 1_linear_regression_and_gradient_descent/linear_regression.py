@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, SGDRegressor
 
 # medical_charges_url = 'https://raw.githubusercontent.com/JovianML/opendatasets/master/data/medical-charges.csv'
 #
@@ -221,8 +221,6 @@ def try_parameters(w, b):
 	print('RMSE Loss: ', loss)
 
 
-
-
 targets = non_smoker_df.charges
 
 predictions = estimate_charges(ages, w, b)
@@ -260,7 +258,7 @@ print('targets shape:', targets.shape)
 model.fit(inputs, targets)
 
 # Test model predictions- the values in np.array are ages and the model returns predicted expenses
-print(model.predict(np.array([[23], [37], [61]])))
+print(f"Test some predictions: {model.predict(np.array([[23], [37], [61]]))}")
 
 # Test the model for the fill list of ages
 
@@ -270,5 +268,29 @@ print(rmse(targets, predictions))
 
 # Display w and b of the model and visualize it using try_parameters function
 
-print(f"w: {model.coef_}\nb: {model.intercept_}")
+print(f"Linear Regression model: \nw: {model.coef_}\nb: {model.intercept_}")
 try_parameters(model.coef_[0], model.intercept_)
+print('-' * 20)
+# Build a model using SGDRegressor model using a stochastic gradient\
+
+model_sgd = SGDRegressor()
+model_sgd.fit(inputs, targets)
+predictions_sgd = model_sgd.predict(inputs)
+print(f"RMSE for SGD regression model:\n {rmse(targets, predictions_sgd)}")
+print(f"SGDRegressor: w: {model_sgd.coef_}\nb: {model_sgd.intercept_}")
+try_parameters(model_sgd.coef_[0], model_sgd.intercept_)
+
+# Build Linear Regression model for smokers
+
+smoker_df = medical_df[medical_df.smoker == 'yes']
+inputs_smokers = smoker_df[['age']]
+targets_smokers = smoker_df.charges
+
+model_linear_smokers = LinearRegression()
+model_linear_smokers.fit(inputs_smokers, targets_smokers)
+
+
+predictions_smokers = model_linear_smokers.predict(inputs_smokers)
+print('-' * 20)
+print(f"RMSE for Linear Regression model with smokers data: {rmse(targets_smokers, predictions_smokers)}")
+print(f"w = {model_linear_smokers.coef_[0]}\n b = {model_linear_smokers.intercept_}")
