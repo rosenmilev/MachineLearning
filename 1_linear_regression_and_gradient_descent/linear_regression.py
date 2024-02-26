@@ -5,6 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 # medical_charges_url = 'https://raw.githubusercontent.com/JovianML/opendatasets/master/data/medical-charges.csv'
 #
@@ -215,7 +216,7 @@ def try_parameters(w, b):
 	plt.ylabel('Charges')
 	plt.legend(['Estimate', 'Actual'])
 	name_of_plot = f"age_charges_estimate_vs_actual_w{w}_b{b}.png"
-	# plt.savefig(name_of_plot)
+	plt.savefig(name_of_plot)
 	loss = rmse(targets, estimated_charges)
 	print('RMSE Loss: ', loss)
 
@@ -225,6 +226,7 @@ def try_parameters(w, b):
 targets = non_smoker_df.charges
 
 predictions = estimate_charges(ages, w, b)
+
 
 
 # Lost/Cost Function
@@ -241,3 +243,32 @@ result = rmse(targets, predictions)
 # On average each element in prediction differs from actual target by 'result'= 8461 for w = 50 and b = 100
 
 try_parameters(310, -3750)
+
+# Linear regression using scikit-learn
+
+model = LinearRegression()
+help(model.fit)
+
+inputs = non_smoker_df[['age']]
+targets = non_smoker_df.charges
+
+print('inputs shape:', inputs.shape)
+print('targets shape:', targets.shape)
+
+# Fit the model to the data
+
+model.fit(inputs, targets)
+
+# Test model predictions- the values in np.array are ages and the model returns predicted expenses
+print(model.predict(np.array([[23], [37], [61]])))
+
+# Test the model for the fill list of ages
+
+predictions = model.predict(inputs)
+
+print(rmse(targets, predictions))
+
+# Display w and b of the model and visualize it using try_parameters function
+
+print(f"w: {model.coef_}\nb: {model.intercept_}")
+try_parameters(model.coef_[0], model.intercept_)
